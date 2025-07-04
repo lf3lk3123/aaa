@@ -569,7 +569,7 @@ namespace InventoryManagementSystem.Data
         }
 
         // 新增：搜尋功能增強
-        public List<Item> SearchItems(string searchTerm, string category = null)
+        public List<Item> SearchItems(string searchTerm, string? category = null)
         {
             var items = new List<Item>();
             var sql = @"SELECT * FROM Items WHERE 

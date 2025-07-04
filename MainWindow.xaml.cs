@@ -41,7 +41,7 @@ namespace InventoryManagementSystem
             _speechService.SpeakWelcome();
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object? sender, EventArgs e)
         {
             TimeText.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
         }
