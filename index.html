@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 我的 Windows 应用程式 v2.0</title>
+    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 标题区域 -->
+        <header class="app-header">
+            <h1 class="app-title">🎉 欢迎使用我的应用程式</h1>
+            <p class="app-subtitle">现代化 Electron 桌面应用程式</p>
+        </header>
+        
+        <!-- 主要内容区域 -->
+        <main class="app-main">
+            <!-- 输入区域 -->
+            <section class="input-section">
+                <div class="input-group">
+                    <label for="nameInput" class="input-label">请输入您的姓名:</label>
+                    <input type="text" id="nameInput" class="input-field" placeholder="输入姓名..." autocomplete="name">
+                </div>
+            </section>
+            
+            <!-- 按钮区域 -->
+            <section class="button-section">
+                <button id="greetBtn" class="btn btn-primary" title="问候用户 (Enter)">
+                    🤝 问候
+                </button>
+                <button id="clearBtn" class="btn btn-warning" title="清除所有内容 (Ctrl+N)">
+                    🗑️ 清除
+                </button>
+                <button id="saveBtn" class="btn btn-success" title="保存消息历史 (Ctrl+S)">
+                    💾 保存
+                </button>
+                <button id="aboutBtn" class="btn btn-info" title="关于应用程式">
+                    ℹ️ 关于
+                </button>
+                <button id="exitBtn" class="btn btn-danger" title="退出应用程式 (Ctrl+Q)">
+                    ❌ 退出
+                </button>
+            </section>
+            
+            <!-- 输出区域 -->
+            <section class="output-section">
+                <div class="output-header">
+                    <h3>消息历史</h3>
+                </div>
+                <textarea id="outputArea" class="output-area" readonly placeholder="消息历史将显示在这里...&#10;&#10;💡 提示：&#10;• 输入姓名后按 Enter 键快速问候&#10;• 使用 Ctrl+S 保存消息历史&#10;• 使用 Ctrl+N 清除所有内容"></textarea>
+            </section>
+        </main>
+        
+        <!-- 状态栏 -->
+        <footer class="app-footer">
+            <div class="status-bar">
+                <span id="statusLabel" class="status-text">就绪</span>
+                <span id="messageCountLabel" class="message-count">消息数: 0</span>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- 加载指示器 -->
+    <div id="loadingIndicator" class="loading-indicator">
+        <div class="loading-spinner"></div>
+        <p>正在加载应用程式...</p>
+    </div>
+    
+    <script src="renderer.js"></script>
+</body>
+</html>
