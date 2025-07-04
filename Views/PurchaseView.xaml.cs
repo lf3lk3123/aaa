@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using InventoryManagementSystem.Data;
@@ -66,7 +67,7 @@ namespace InventoryManagementSystem.Views
             }
         }
 
-        private void SubmitButton_Click(object sender, RoutedEventArgs e)
+        private async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -108,7 +109,14 @@ namespace InventoryManagementSystem.Views
                 };
 
                 // 保存到資料庫
-                _databaseHelper.AddPurchase(purchase);
+                var success = await Task.Run(() => _databaseHelper.AddPurchase(purchase));
+                
+                if (!success)
+                {
+                    MessageBox.Show("進貨記錄新增失敗！", "錯誤", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
                 // 獲取商品名稱用於語音提示
                 var selectedItem = (Item)ItemComboBox.SelectedItem;

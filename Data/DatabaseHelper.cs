@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Threading.Tasks;
+using System.Linq;
 using InventoryManagementSystem.Models;
 
 namespace InventoryManagementSystem.Data
 {
-    public class DatabaseHelper
+    public class DatabaseHelper : IDisposable
     {
         private readonly string _connectionString;
         private readonly string _dbPath;
+        private bool _disposed = false;
 
         public DatabaseHelper()
         {
             _dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "local.db");
-            _connectionString = $"Data Source={_dbPath};Version=3;";
+            _connectionString = $"Data Source={_dbPath};Version=3;Foreign Keys=True;Pooling=True;";
             InitializeDatabase();
         }
 
@@ -276,25 +279,94 @@ namespace InventoryManagementSystem.Data
             return items;
         }
 
-        public void AddItem(Item item)
+        public bool AddItem(Item item)
         {
-            var sql = @"INSERT INTO Items (Name, Price, Stock, MinStock, Category, Description) 
-                       VALUES (@name, @price, @stock, @minStock, @category, @description)";
-            var parameters = new[]
+            if (!ValidateItem(item))
+                throw new ArgumentException("商品資料驗證失敗");
+
+            try
             {
-                new SQLiteParameter("@name", item.Name),
-                new SQLiteParameter("@price", item.Price),
-                new SQLiteParameter("@stock", item.Stock),
+                var sql = @"INSERT INTO Items (Name, Price, Stock, MinStock, Category, Description) 
+                           VALUES (@name, @price, @stock, @minStock, @category, @description)";
+                var parameters = new[]
+                {
+                    new SQLiteParameter("@name", item.Name),
+                    new SQLiteParameter("@price", item.Price),
+                    new SQLiteParameter("@stock", item.Stock),
                 new SQLiteParameter("@minStock", item.MinStock),
-                new SQLiteParameter("@category", item.Category ?? ""),
-                new SQLiteParameter("@description", item.Description ?? "")
-            };
-            ExecuteNonQuery(sql, parameters);
+                    new SQLiteParameter("@category", item.Category ?? ""),
+                    new SQLiteParameter("@description", item.Description ?? "")
+                };
+                ExecuteNonQuery(sql, parameters);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool UpdateItem(Item item)
+        {
+            if (!ValidateItem(item))
+                throw new ArgumentException("商品資料驗證失敗");
+
+            try
+            {
+                var sql = @"UPDATE Items SET Name = @name, Price = @price, Stock = @stock, 
+                           MinStock = @minStock, Category = @category, Description = @description 
+                           WHERE ItemID = @itemId";
+                var parameters = new[]
+                {
+                    new SQLiteParameter("@name", item.Name),
+                    new SQLiteParameter("@price", item.Price),
+                    new SQLiteParameter("@stock", item.Stock),
+                    new SQLiteParameter("@minStock", item.MinStock),
+                    new SQLiteParameter("@category", item.Category ?? ""),
+                    new SQLiteParameter("@description", item.Description ?? ""),
+                    new SQLiteParameter("@itemId", item.ItemID)
+                };
+                ExecuteNonQuery(sql, parameters);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteItem(int itemId)
+        {
+            try
+            {
+                // 檢查是否有相關的進貨或銷售記錄
+                var checkSql = @"SELECT COUNT(*) FROM (
+                                SELECT ItemID FROM Purchases WHERE ItemID = @itemId
+                                UNION ALL
+                                SELECT ItemID FROM Sales WHERE ItemID = @itemId
+                               )";
+                var checkParams = new[] { new SQLiteParameter("@itemId", itemId) };
+                var count = Convert.ToInt32(ExecuteScalar(checkSql, checkParams));
+                
+                if (count > 0)
+                {
+                    throw new InvalidOperationException("無法刪除已有交易記錄的商品");
+                }
+
+                var sql = "DELETE FROM Items WHERE ItemID = @itemId";
+                var parameters = new[] { new SQLiteParameter("@itemId", itemId) };
+                ExecuteNonQuery(sql, parameters);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void UpdateItemStock(int itemId, int newStock)
         {
-            var sql = "UPDATE Items SET Stock = @stock, UpdatedAt = CURRENT_TIMESTAMP WHERE ItemID = @itemId";
+            var sql = "UPDATE Items SET Stock = @stock WHERE ItemID = @itemId";
             var parameters = new[]
             {
                 new SQLiteParameter("@stock", newStock),
@@ -304,8 +376,11 @@ namespace InventoryManagementSystem.Data
         }
 
         // 進貨相關操作
-        public void AddPurchase(Purchase purchase)
+        public bool AddPurchase(Purchase purchase)
         {
+            if (!ValidatePurchase(purchase))
+                throw new ArgumentException("進貨資料驗證失敗");
+                
             using var connection = new SQLiteConnection(_connectionString);
             connection.Open();
             using var transaction = connection.BeginTransaction();
@@ -339,17 +414,20 @@ namespace InventoryManagementSystem.Data
                 updateCommand.ExecuteNonQuery();
 
                 transaction.Commit();
+                return true;
             }
             catch
             {
                 transaction.Rollback();
-                throw;
+                return false;
             }
         }
 
         // 銷售相關操作
-        public void AddSale(Sale sale)
+        public bool AddSale(Sale sale)
         {
+            if (!ValidateSale(sale))
+                throw new ArgumentException("銷售資料驗證失敗");
             using var connection = new SQLiteConnection(_connectionString);
             connection.Open();
             using var transaction = connection.BeginTransaction();
@@ -396,11 +474,12 @@ namespace InventoryManagementSystem.Data
                 updateCommand.ExecuteNonQuery();
 
                 transaction.Commit();
+                return true;
             }
             catch
             {
                 transaction.Rollback();
-                throw;
+                return false;
             }
         }
 
@@ -430,6 +509,184 @@ namespace InventoryManagementSystem.Data
                 suppliers.Add(row["Name"].ToString() ?? "");
             }
             return suppliers;
+        }
+
+        // 新增：異步方法支援
+        public async Task<List<Item>> GetAllItemsAsync()
+        {
+            return await Task.Run(() => GetAllItems());
+        }
+
+        public async Task<bool> AddItemAsync(Item item)
+        {
+            return await Task.Run(() => AddItem(item));
+        }
+
+        public async Task<bool> UpdateItemAsync(Item item)
+        {
+            return await Task.Run(() => UpdateItem(item));
+        }
+
+        public async Task<bool> DeleteItemAsync(int itemId)
+        {
+            return await Task.Run(() => DeleteItem(itemId));
+        }
+
+        // 新增：批量操作支援
+        public bool AddItemsBatch(List<Item> items)
+        {
+            if (items == null || !items.Any()) return false;
+
+            using var connection = new SQLiteConnection(_connectionString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                var sql = @"INSERT INTO Items (Name, Price, Stock, MinStock, Category, Description) 
+                           VALUES (@Name, @Price, @Stock, @MinStock, @Category, @Description)";
+
+                foreach (var item in items)
+                {
+                    using var command = new SQLiteCommand(sql, connection, transaction);
+                    command.Parameters.AddWithValue("@Name", item.Name);
+                    command.Parameters.AddWithValue("@Price", item.Price);
+                    command.Parameters.AddWithValue("@Stock", item.Stock);
+                    command.Parameters.AddWithValue("@MinStock", item.MinStock);
+                    command.Parameters.AddWithValue("@Category", item.Category ?? "");
+                    command.Parameters.AddWithValue("@Description", item.Description ?? "");
+                    command.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        // 新增：搜尋功能增強
+        public List<Item> SearchItems(string searchTerm, string category = null)
+        {
+            var items = new List<Item>();
+            var sql = @"SELECT * FROM Items WHERE 
+                       (Name LIKE @SearchTerm OR Description LIKE @SearchTerm)";
+            
+            var parameters = new List<SQLiteParameter>
+            {
+                new SQLiteParameter("@SearchTerm", $"%{searchTerm}%")
+            };
+
+            if (!string.IsNullOrEmpty(category))
+            {
+                sql += " AND Category = @Category";
+                parameters.Add(new SQLiteParameter("@Category", category));
+            }
+
+            sql += " ORDER BY Name";
+
+            using var connection = new SQLiteConnection(_connectionString);
+            connection.Open();
+            using var command = new SQLiteCommand(sql, connection);
+            command.Parameters.AddRange(parameters.ToArray());
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                items.Add(new Item
+                {
+                    ItemID = Convert.ToInt32(reader["ItemID"]),
+                    Name = reader["Name"].ToString() ?? "",
+                    Price = Convert.ToDouble(reader["Price"]),
+                    Stock = Convert.ToInt32(reader["Stock"]),
+                    MinStock = Convert.ToInt32(reader["MinStock"]),
+                    Category = reader["Category"].ToString(),
+                    Description = reader["Description"].ToString()
+                });
+            }
+
+            return items;
+        }
+
+        // 新增：庫存警告
+        public List<Item> GetLowStockItems()
+        {
+            var items = new List<Item>();
+            var sql = "SELECT * FROM Items WHERE Stock <= MinStock ORDER BY Stock ASC";
+
+            using var connection = new SQLiteConnection(_connectionString);
+            connection.Open();
+            using var command = new SQLiteCommand(sql, connection);
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                items.Add(new Item
+                {
+                    ItemID = Convert.ToInt32(reader["ItemID"]),
+                    Name = reader["Name"].ToString() ?? "",
+                    Price = Convert.ToDouble(reader["Price"]),
+                    Stock = Convert.ToInt32(reader["Stock"]),
+                    MinStock = Convert.ToInt32(reader["MinStock"]),
+                    Category = reader["Category"].ToString(),
+                    Description = reader["Description"].ToString()
+                });
+            }
+
+            return items;
+        }
+
+        // 新增：資料驗證
+        private bool ValidateItem(Item item)
+        {
+            return !string.IsNullOrWhiteSpace(item.Name) &&
+                   item.Price >= 0 &&
+                   item.Stock >= 0 &&
+                   item.MinStock >= 0;
+        }
+
+        private bool ValidatePurchase(Purchase purchase)
+        {
+            return purchase.ItemID > 0 &&
+                   purchase.Quantity > 0 &&
+                   purchase.UnitPrice >= 0 &&
+                   !string.IsNullOrWhiteSpace(purchase.Supplier);
+        }
+
+        private bool ValidateSale(Sale sale)
+        {
+            return sale.ItemID > 0 &&
+                   sale.Quantity > 0 &&
+                   sale.UnitPrice >= 0 &&
+                   sale.FinalAmount >= 0;
+        }
+
+        // IDisposable 實作
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // 清理 managed 資源
+                    SQLiteConnection.ClearAllPools();
+                }
+                _disposed = true;
+            }
+        }
+
+        ~DatabaseHelper()
+        {
+            Dispose(false);
         }
     }
 }

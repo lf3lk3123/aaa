@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading.Tasks;
 using MaterialDesignThemes.Wpf;
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Services;
@@ -9,12 +10,13 @@ using InventoryManagementSystem.Views;
 
 namespace InventoryManagementSystem
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IDisposable
     {
         private readonly DatabaseHelper _databaseHelper;
         private readonly SpeechService _speechService;
         private readonly DispatcherTimer _timer;
         private bool _isDarkTheme = false;
+        private bool _disposed = false;
 
         public MainWindow()
         {
@@ -168,9 +170,65 @@ namespace InventoryManagementSystem
 
         protected override void OnClosed(EventArgs e)
         {
-            _timer?.Stop();
-            _speechService?.Dispose();
+            Dispose();
             base.OnClosed(e);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _timer?.Stop();
+                    _speechService?.Dispose();
+                    _databaseHelper?.Dispose();
+                }
+                _disposed = true;
+            }
+        }
+
+        ~MainWindow()
+        {
+            Dispose(false);
+        }
+
+        // 新增：異步載入統計資料
+        private async Task LoadStatisticsAsync()
+        {
+            try
+            {
+                StatusText.Text = "正在載入統計資料...";
+                
+                var todaySales = await Task.Run(() => _databaseHelper.GetTodaySalesAmount());
+                var todayPurchases = await Task.Run(() => _databaseHelper.GetTodayPurchaseAmount());
+                var allItems = await Task.Run(() => _databaseHelper.GetAllItems());
+                var lowStockItems = await Task.Run(() => _databaseHelper.GetLowStockItems());
+
+                TodaySalesText.Text = $"NT$ {todaySales:N0}";
+                TodayPurchasesText.Text = $"NT$ {todayPurchases:N0}";
+                TotalItemsText.Text = $"{allItems.Count} 項";
+                LowStockText.Text = $"{lowStockItems.Count} 項";
+
+                StatusText.Text = "統計資料已更新";
+            }
+            catch (Exception ex)
+            {
+                StatusText.Text = $"載入統計資料失敗: {ex.Message}";
+            }
+        }
+
+        // 新增：刷新統計資料
+        public async void RefreshStatistics()
+        {
+            await LoadStatisticsAsync();
+            CheckLowStock();
         }
     }
 }

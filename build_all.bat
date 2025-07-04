@@ -1,34 +1,48 @@
 @echo off
 chcp 65001 >nul
+title Windows 应用程式自动构建脚本 v2.0
+
 echo ========================================
-echo    Windows 应用程式自动构建脚本
+echo    🎉 Windows 应用程式自动构建脚本 v2.0
+echo ========================================
+echo    现代化多技术栈桌面应用开发工具
 echo ========================================
 echo.
 
 set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
 
-echo 当前目录: %CD%
+echo 📁 当前目录: %CD%
+echo 📅 构建时间: %DATE% %TIME%
 echo.
 
+:: 检查必要工具
+call :check_requirements
+
 :menu
-echo 请选择要构建的应用程式类型:
+echo ========================================
+echo 🛠️  请选择要构建的应用程式类型:
+echo ========================================
 echo.
-echo 1. Python + PyInstaller
-echo 2. C# + .NET
-echo 3. Electron + JavaScript
-echo 4. 构建所有版本
-echo 5. 清理构建文件
-echo 0. 退出
+echo 1. 🐍 Python + PyInstaller (推荐用于快速原型)
+echo 2. 🔷 C# + .NET (推荐用于企业应用)
+echo 3. ⚡ Electron + JavaScript (推荐用于现代UI)
+echo 4. 🚀 构建所有版本
+echo 5. 🧪 运行测试
+echo 6. 🗑️  清理构建文件
+echo 7. 📊 显示构建统计
+echo 0. ❌ 退出
 echo.
-set /p choice="请输入选择 (0-5): "
+set /p choice="请输入选择 (0-7): "
 
 if "%choice%"=="1" goto build_python
 if "%choice%"=="2" goto build_csharp
 if "%choice%"=="3" goto build_electron
 if "%choice%"=="4" goto build_all
-if "%choice%"=="5" goto clean_all
-if "%choice%"=="0" goto exit
+if "%choice%"=="5" goto run_tests
+if "%choice%"=="6" goto clean_all
+if "%choice%"=="7" goto show_stats
+if "%choice%"=="0" goto exit_script
 echo 无效选择，请重新输入。
 echo.
 goto menu
@@ -223,9 +237,114 @@ echo.
 pause
 goto menu
 
-:exit
+:: 新增功能函数
+:check_requirements
+echo 🔍 检查开发环境...
+set "python_ok=0"
+set "dotnet_ok=0"
+set "node_ok=0"
+
+python --version >nul 2>&1 && set "python_ok=1"
+dotnet --version >nul 2>&1 && set "dotnet_ok=1"
+node --version >nul 2>&1 && set "node_ok=1"
+
+echo 📋 环境检查结果:
+if "%python_ok%"=="1" (echo ✅ Python: 已安装) else (echo ❌ Python: 未安装)
+if "%dotnet_ok%"=="1" (echo ✅ .NET SDK: 已安装) else (echo ❌ .NET SDK: 未安装)
+if "%node_ok%"=="1" (echo ✅ Node.js: 已安装) else (echo ❌ Node.js: 未安装)
 echo.
-echo 感谢使用 Windows 应用程式构建脚本!
+goto :eof
+
+:run_tests
+echo.
+echo ========================================
+echo 🧪 运行应用程式测试...
+echo ========================================
+echo.
+
+echo 测试 Python 版本...
+if exist "main.py" (
+    python main.py --test >nul 2>&1 && echo ✅ Python 版本测试通过 || echo ❌ Python 版本测试失败
+) else (
+    echo ⚠️  main.py 不存在
+)
+
+echo 测试 C# 版本...
+if exist "Program.cs" (
+    dotnet run --project . >nul 2>&1 && echo ✅ C# 版本测试通过 || echo ❌ C# 版本测试失败
+) else (
+    echo ⚠️  Program.cs 不存在
+)
+
+echo 测试 Electron 版本...
+if exist "package.json" (
+    npm test >nul 2>&1 && echo ✅ Electron 版本测试通过 || echo ❌ Electron 版本测试失败
+) else (
+    echo ⚠️  package.json 不存在
+)
+
+echo.
+pause
+goto menu
+
+:show_stats
+echo.
+echo ========================================
+echo 📊 构建统计信息
+echo ========================================
+echo.
+
+echo 📁 项目文件统计:
+if exist "main.py" (
+    for %%F in (main.py) do echo   Python 主文件: %%~zF 字节
+)
+if exist "Program.cs" (
+    for %%F in (Program.cs) do echo   C# 主文件: %%~zF 字节
+)
+if exist "main.js" (
+    for %%F in (main.js) do echo   Electron 主文件: %%~zF 字节
+)
+
+echo.
+echo 📦 构建输出统计:
+if exist "dist" (
+    echo   构建目录大小:
+    dir "dist" /s /-c | find "个文件"
+) else (
+    echo   ⚠️  未找到构建输出
+)
+
+echo.
+echo 🕒 最后修改时间:
+if exist "main.py" (
+    for %%F in (main.py) do echo   Python: %%~tF
+)
+if exist "Program.cs" (
+    for %%F in (Program.cs) do echo   C#: %%~tF
+)
+if exist "main.js" (
+    for %%F in (main.js) do echo   Electron: %%~tF
+)
+
+echo.
+pause
+goto menu
+
+:exit_script
+echo.
+echo ========================================
+echo 🎉 感谢使用 Windows 应用程式构建脚本 v2.0!
+echo ========================================
+echo.
+echo 📈 构建统计:
+if exist "dist\MyWindowsApp.exe" echo ✅ Python 版本已构建
+if exist "dist\csharp\MyWindowsApp.exe" echo ✅ C# 版本已构建  
+if exist "dist\*.exe" echo ✅ Electron 版本已构建
+echo.
+echo 💡 提示: 
+echo   - 所有构建文件保存在 dist\ 目录中
+echo   - 使用选项 6 可以清理构建文件
+echo   - 访问 https://github.com/lf3lk3123/aaa 获取更多信息
 echo.
 pause
 exit /b 0

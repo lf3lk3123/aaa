@@ -1,40 +1,146 @@
 {
   "name": "my-windows-app",
-  "version": "1.0.0",
-  "description": "使用 Electron 开发的 Windows 桌面应用程式",
+  "version": "2.0.0",
+  "description": "使用 Electron 开发的现代化 Windows 桌面应用程式",
   "main": "main.js",
+  "homepage": "https://github.com/lf3lk3123/aaa",
   "scripts": {
     "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
     "build": "electron-builder",
     "build-win": "electron-builder --win",
-    "dist": "npm run build"
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux",
+    "dist": "npm run build",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["electron", "windows", "desktop", "app"],
-  "author": "OpenHands",
+  "keywords": [
+    "electron",
+    "windows",
+    "desktop",
+    "app",
+    "gui",
+    "cross-platform",
+    "modern"
+  ],
+  "author": {
+    "name": "OpenHands",
+    "email": "openhands@all-hands.dev"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lf3lk3123/aaa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lf3lk3123/aaa/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "devDependencies": {
-    "electron": "^28.0.0",
+    "electron": "^28.2.0",
     "electron-builder": "^24.9.1"
   },
   "build": {
     "appId": "com.openhands.mywindowsapp",
     "productName": "我的 Windows 应用程式",
+    "copyright": "Copyright © 2025 OpenHands",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "main.js",
+      "preload.js",
       "renderer.js",
       "index.html",
-      "style.css"
+      "style.css",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "README.md",
+        "to": "README.md"
+      }
     ],
     "win": {
-      "target": "nsis",
-      "icon": "icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "icon.ico",
+      "requestedExecutionLevel": "asInvoker",
+      "publisherName": "OpenHands"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "icon.png",
+      "category": "Utility"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "我的 Windows 应用程式"
+    },
+    "dmg": {
+      "title": "我的 Windows 应用程式",
+      "icon": "icon.icns",
+      "background": "build/background.png",
+      "window": {
+        "width": 540,
+        "height": 380
+      },
+      "contents": [
+        {
+          "x": 410,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 190,
+          "type": "file"
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
     }
   }
 }

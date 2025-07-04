@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using InventoryManagementSystem.Data;
@@ -104,7 +105,7 @@ namespace InventoryManagementSystem.Views
             }
         }
 
-        private void SubmitButton_Click(object sender, RoutedEventArgs e)
+        private async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -155,7 +156,15 @@ namespace InventoryManagementSystem.Views
                 };
 
                 // 保存到資料庫
-                _databaseHelper.AddSale(sale);
+                var success = await Task.Run(() => _databaseHelper.AddSale(sale));
+                
+                if (!success)
+                {
+                    MessageBox.Show("銷售記錄新增失敗！", "錯誤", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    _speechService.SpeakError("銷售記錄新增失敗");
+                    return;
+                }
 
                 // 語音提示
                 _speechService.SpeakSaleComplete(_selectedItem.Name, quantity, finalAmount);
