@@ -19,7 +19,7 @@
                    Margin="0,0,0,20"/>
 
         <!-- 表單 -->
-        <StackPanel Grid.Row="1" Spacing="15">
+        <StackPanel Grid.Row="1">
             <TextBox x:Name="NameTextBox"
                      materialDesign:HintAssist.Hint="商品名稱"
                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"

@@ -611,33 +611,7 @@ namespace InventoryManagementSystem.Data
             return items;
         }
 
-        // 新增：庫存警告
-        public List<Item> GetLowStockItems()
-        {
-            var items = new List<Item>();
-            var sql = "SELECT * FROM Items WHERE Stock <= MinStock ORDER BY Stock ASC";
 
-            using var connection = new SQLiteConnection(_connectionString);
-            connection.Open();
-            using var command = new SQLiteCommand(sql, connection);
-            using var reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                items.Add(new Item
-                {
-                    ItemID = Convert.ToInt32(reader["ItemID"]),
-                    Name = reader["Name"].ToString() ?? "",
-                    Price = Convert.ToDouble(reader["Price"]),
-                    Stock = Convert.ToInt32(reader["Stock"]),
-                    MinStock = Convert.ToInt32(reader["MinStock"]),
-                    Category = reader["Category"].ToString(),
-                    Description = reader["Description"].ToString()
-                });
-            }
-
-            return items;
-        }
 
         // 新增：資料驗證
         private bool ValidateItem(Item item)
