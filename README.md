@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Windows 桌面应用程式开发指南
 
 本仓库包含了三种不同技术栈开发 Windows exe 应用程式的完整示例。
@@ -185,6 +184,3 @@ MIT License - 可自由使用和修改。
 **开发者**: OpenHands  
 **日期**: 2025-07-04  
 **版本**: 1.0.0
-=======
-# Windows EXE Application Development Framework
->>>>>>> main
