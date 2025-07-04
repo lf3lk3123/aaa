@@ -1,0 +1,262 @@
+<Window x:Class="InventoryManagementSystem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="進銷存管理系統" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+
+    <Window.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="20,15"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="8"/>
+        </Style>
+
+        <Style x:Key="StatCardStyle" TargetType="materialDesign:Card">
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="materialDesign:ShadowAssist.ShadowDepth" Value="Depth2"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 標題欄 -->
+        <materialDesign:ColorZone Grid.Row="0" Mode="PrimaryMid" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Store" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="進銷存管理系統" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="ThemeToggleButton" Style="{StaticResource MaterialDesignIconButton}" 
+                            ToolTip="切換主題" Click="ThemeToggleButton_Click" Margin="5,0">
+                        <materialDesign:PackIcon Kind="Brightness6" Width="24" Height="24"/>
+                    </Button>
+                    <Button x:Name="SpeechToggleButton" Style="{StaticResource MaterialDesignIconButton}" 
+                            ToolTip="語音開關" Click="SpeechToggleButton_Click" Margin="5,0">
+                        <materialDesign:PackIcon x:Name="SpeechIcon" Kind="VolumeHigh" Width="24" Height="24"/>
+                    </Button>
+                    <Button x:Name="SettingsButton" Style="{StaticResource MaterialDesignIconButton}" 
+                            ToolTip="設定" Click="SettingsButton_Click" Margin="5,0">
+                        <materialDesign:PackIcon Kind="Settings" Width="24" Height="24"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </materialDesign:ColorZone>
+
+        <!-- 統計卡片 -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <materialDesign:Card Grid.Column="0" Style="{StaticResource StatCardStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <materialDesign:PackIcon Kind="TrendingUp" Width="24" Height="24" 
+                                               Foreground="{StaticResource MaterialDesignValidationErrorBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="今日銷售" FontWeight="Bold" FontSize="16" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock x:Name="TodaySalesText" Text="NT$ 0" FontSize="20" FontWeight="Bold" 
+                             Foreground="{StaticResource MaterialDesignValidationErrorBrush}"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Grid.Column="1" Style="{StaticResource StatCardStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <materialDesign:PackIcon Kind="TrendingDown" Width="24" Height="24" 
+                                               Foreground="{StaticResource MaterialDesignDarkForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="今日進貨" FontWeight="Bold" FontSize="16" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock x:Name="TodayPurchasesText" Text="NT$ 0" FontSize="20" FontWeight="Bold" 
+                             Foreground="{StaticResource MaterialDesignDarkForegroundBrush}"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Grid.Column="2" Style="{StaticResource StatCardStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <materialDesign:PackIcon Kind="Package" Width="24" Height="24" 
+                                               Foreground="{StaticResource MaterialDesignSecondaryMidBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="商品總數" FontWeight="Bold" FontSize="16" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock x:Name="TotalItemsText" Text="0 項" FontSize="20" FontWeight="Bold" 
+                             Foreground="{StaticResource MaterialDesignSecondaryMidBrush}"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Grid.Column="3" Style="{StaticResource StatCardStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <materialDesign:PackIcon Kind="AlertCircle" Width="24" Height="24" 
+                                               Foreground="{StaticResource MaterialDesignValidationErrorBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="庫存警示" FontWeight="Bold" FontSize="16" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock x:Name="LowStockText" Text="0 項" FontSize="20" FontWeight="Bold" 
+                             Foreground="{StaticResource MaterialDesignValidationErrorBrush}"/>
+                </StackPanel>
+            </materialDesign:Card>
+        </Grid>
+
+        <!-- 主要內容區域 -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左側功能選單 -->
+            <materialDesign:Card Grid.Column="0" Margin="10,0,5,10" Padding="10">
+                <StackPanel>
+                    <TextBlock Text="功能選單" FontSize="18" FontWeight="Bold" Margin="0,0,0,20" 
+                             HorizontalAlignment="Center"/>
+
+                    <Button x:Name="InventoryButton" Style="{StaticResource MenuButtonStyle}" 
+                            Click="InventoryButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Package" Width="20" Height="20" VerticalAlignment="Center"/>
+                            <TextBlock Text="庫存管理" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="PurchaseButton" Style="{StaticResource MenuButtonStyle}" 
+                            Click="PurchaseButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="TruckDelivery" Width="20" Height="20" VerticalAlignment="Center"/>
+                            <TextBlock Text="進貨管理" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="SalesButton" Style="{StaticResource MenuButtonStyle}" 
+                            Click="SalesButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="CashRegister" Width="20" Height="20" VerticalAlignment="Center"/>
+                            <TextBlock Text="銷售管理" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="MemberButton" Style="{StaticResource MenuButtonStyle}" 
+                            Click="MemberButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Account" Width="20" Height="20" VerticalAlignment="Center"/>
+                            <TextBlock Text="會員管理" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="ReportsButton" Style="{StaticResource MenuButtonStyle}" 
+                            Click="ReportsButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ChartLine" Width="20" Height="20" VerticalAlignment="Center"/>
+                            <TextBlock Text="報表分析" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- 右側內容區域 -->
+            <materialDesign:Card Grid.Column="1" Margin="5,0,10,10" Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="ContentTitle" Grid.Row="0" Text="歡迎使用進銷存管理系統" 
+                             FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ContentControl x:Name="MainContent">
+                            <!-- 預設內容 - 歡迎頁面 -->
+                            <StackPanel>
+                                <materialDesign:PackIcon Kind="Store" Width="100" Height="100" 
+                                                       HorizontalAlignment="Center" Margin="0,50,0,30"
+                                                       Foreground="{StaticResource MaterialDesignSecondaryMidBrush}"/>
+                                
+                                <TextBlock Text="歡迎使用進銷存管理系統" FontSize="24" FontWeight="Bold" 
+                                         HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                                
+                                <TextBlock Text="請從左側選單選擇功能開始使用" FontSize="16" 
+                                         HorizontalAlignment="Center" Margin="0,0,0,30"
+                                         Foreground="{StaticResource MaterialDesignBodyLight}"/>
+
+                                <!-- 快速操作 -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" 
+                                            Margin="10" Padding="20,10" Click="InventoryButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Package" Width="16" Height="16" VerticalAlignment="Center"/>
+                                            <TextBlock Text="查看庫存" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    
+                                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" 
+                                            Margin="10" Padding="20,10" Click="SalesButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="CashRegister" Width="16" Height="16" VerticalAlignment="Center"/>
+                                            <TextBlock Text="快速銷售" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                                <!-- 低庫存警示 -->
+                                <materialDesign:Card x:Name="LowStockAlert" Margin="0,30,0,0" 
+                                                   Background="{StaticResource MaterialDesignValidationErrorBrush}"
+                                                   Visibility="Collapsed">
+                                    <StackPanel Margin="20">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <materialDesign:PackIcon Kind="AlertCircle" Width="24" Height="24" 
+                                                                   Foreground="White" VerticalAlignment="Center"/>
+                                            <TextBlock Text="庫存警示" FontWeight="Bold" FontSize="16" 
+                                                     Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock x:Name="LowStockMessage" Text="" Foreground="White" FontSize="14"/>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </StackPanel>
+                        </ContentControl>
+                    </ScrollViewer>
+                </Grid>
+            </materialDesign:Card>
+        </Grid>
+
+        <!-- 狀態欄 -->
+        <materialDesign:ColorZone Grid.Row="3" Mode="PrimaryDark" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock x:Name="StatusText" Grid.Column="0" Text="系統就緒" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TimeText" Grid.Column="1" Text="" VerticalAlignment="Center"/>
+            </Grid>
+        </materialDesign:ColorZone>
+    </Grid>
+</Window>

@@ -1,0 +1,134 @@
+<UserControl x:Class="InventoryManagementSystem.Views.SalesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 左側銷售表單 -->
+        <materialDesign:Card Grid.Column="0" Margin="0,0,10,0" Padding="20">
+            <StackPanel>
+                <TextBlock Text="銷售登記" FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 日期 -->
+                    <TextBlock Grid.Row="0" Text="銷售日期" Margin="0,0,0,5"/>
+                    <DatePicker x:Name="DatePicker" Grid.Row="1" Margin="0,0,0,15"/>
+
+                    <!-- 客戶 -->
+                    <TextBlock Grid.Row="2" Text="客戶" Margin="0,0,0,5"/>
+                    <TextBox x:Name="CustomerTextBox" Grid.Row="3" 
+                             materialDesign:HintAssist.Hint="客戶名稱（選填）" Margin="0,0,0,15"/>
+
+                    <!-- 商品 -->
+                    <TextBlock Grid.Row="4" Text="商品" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="ItemComboBox" Grid.Row="5" 
+                              materialDesign:HintAssist.Hint="選擇商品" 
+                              SelectionChanged="ItemComboBox_SelectionChanged" Margin="0,0,0,15"/>
+
+                    <!-- 庫存提示 -->
+                    <TextBlock x:Name="StockInfoText" Grid.Row="6" Text="" 
+                             Foreground="{StaticResource MaterialDesignBodyLight}" 
+                             FontSize="12" Margin="0,-10,0,15"/>
+
+                    <!-- 數量和單價 -->
+                    <Grid Grid.Row="7" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="數量" Margin="0,0,0,5"/>
+                            <TextBox x:Name="QuantityTextBox" materialDesign:HintAssist.Hint="數量" 
+                                     TextChanged="QuantityTextBox_TextChanged"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="單價" Margin="0,0,0,5"/>
+                            <TextBox x:Name="UnitPriceTextBox" materialDesign:HintAssist.Hint="單價" 
+                                     TextChanged="UnitPriceTextBox_TextChanged"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 小計和折扣 -->
+                    <Grid Grid.Row="8" Margin="0,0,0,15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="小計：" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="SubtotalText" Text="NT$ 0.00" FontWeight="Bold" 
+                                     VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                            <TextBlock Text="折扣金額" Margin="0,0,0,5"/>
+                            <TextBox x:Name="DiscountTextBox" materialDesign:HintAssist.Hint="折扣金額" 
+                                     TextChanged="DiscountTextBox_TextChanged"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                            <TextBlock Text="實收金額：" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="FinalAmountText" Text="NT$ 0.00" FontWeight="Bold" 
+                                     FontSize="18" Foreground="{StaticResource MaterialDesignValidationErrorBrush}" 
+                                     VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 備註 -->
+                    <TextBlock Grid.Row="9" Text="備註" Margin="0,0,0,5"/>
+                    <TextBox x:Name="NotesTextBox" materialDesign:HintAssist.Hint="備註（選填）" 
+                             AcceptsReturn="True" Height="60" TextWrapping="Wrap" 
+                             VerticalScrollBarVisibility="Auto" Margin="0,0,0,20"/>
+                </Grid>
+
+                <!-- 按鈕 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="ClearButton" Style="{StaticResource MaterialDesignOutlinedButton}" 
+                            Content="清除" Margin="0,0,10,0" Click="ClearButton_Click"/>
+                    <Button x:Name="SubmitButton" Style="{StaticResource MaterialDesignRaisedButton}" 
+                            Content="確認銷售" Click="SubmitButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- 右側銷售記錄 -->
+        <materialDesign:Card Grid.Column="1" Margin="10,0,0,0" Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="最近銷售記錄" FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                <!-- TODO: 銷售記錄列表 -->
+                <TextBlock Grid.Row="1" Text="銷售記錄功能開發中..." 
+                         HorizontalAlignment="Center" VerticalAlignment="Center"
+                         Foreground="{StaticResource MaterialDesignBodyLight}"/>
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>
