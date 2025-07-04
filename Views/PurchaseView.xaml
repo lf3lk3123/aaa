@@ -1,0 +1,107 @@
+<UserControl x:Class="InventoryManagementSystem.Views.PurchaseView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 左側進貨表單 -->
+        <materialDesign:Card Grid.Column="0" Margin="0,0,10,0" Padding="20">
+            <StackPanel>
+                <TextBlock Text="進貨登記" FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 日期 -->
+                    <TextBlock Grid.Row="0" Text="進貨日期" Margin="0,0,0,5"/>
+                    <DatePicker x:Name="DatePicker" Grid.Row="1" Margin="0,0,0,15"/>
+
+                    <!-- 供應商 -->
+                    <TextBlock Grid.Row="2" Text="供應商" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="SupplierComboBox" Grid.Row="3" IsEditable="True" 
+                              materialDesign:HintAssist.Hint="選擇或輸入供應商" Margin="0,0,0,15"/>
+
+                    <!-- 商品 -->
+                    <TextBlock Grid.Row="4" Text="商品" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="ItemComboBox" Grid.Row="5" 
+                              materialDesign:HintAssist.Hint="選擇商品" Margin="0,0,0,15"/>
+
+                    <!-- 數量和單價 -->
+                    <Grid Grid.Row="6" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="數量" Margin="0,0,0,5"/>
+                            <TextBox x:Name="QuantityTextBox" materialDesign:HintAssist.Hint="數量" 
+                                     TextChanged="QuantityTextBox_TextChanged"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="單價" Margin="0,0,0,5"/>
+                            <TextBox x:Name="UnitPriceTextBox" materialDesign:HintAssist.Hint="單價" 
+                                     TextChanged="UnitPriceTextBox_TextChanged"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 總金額 -->
+                    <StackPanel Grid.Row="7" Orientation="Horizontal" Margin="0,0,0,15">
+                        <TextBlock Text="總金額：" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TotalAmountText" Text="NT$ 0.00" FontWeight="Bold" 
+                                 FontSize="16" Foreground="{StaticResource MaterialDesignValidationErrorBrush}" 
+                                 VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- 備註 -->
+                    <TextBlock Grid.Row="8" Text="備註" Margin="0,0,0,5"/>
+                    <TextBox x:Name="NotesTextBox" materialDesign:HintAssist.Hint="備註（選填）" 
+                             AcceptsReturn="True" Height="60" TextWrapping="Wrap" 
+                             VerticalScrollBarVisibility="Auto" Margin="0,0,0,20"/>
+                </Grid>
+
+                <!-- 按鈕 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="ClearButton" Style="{StaticResource MaterialDesignOutlinedButton}" 
+                            Content="清除" Margin="0,0,10,0" Click="ClearButton_Click"/>
+                    <Button x:Name="SubmitButton" Style="{StaticResource MaterialDesignRaisedButton}" 
+                            Content="確認進貨" Click="SubmitButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- 右側進貨記錄 -->
+        <materialDesign:Card Grid.Column="1" Margin="10,0,0,0" Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="最近進貨記錄" FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                <!-- TODO: 進貨記錄列表 -->
+                <TextBlock Grid.Row="1" Text="進貨記錄功能開發中..." 
+                         HorizontalAlignment="Center" VerticalAlignment="Center"
+                         Foreground="{StaticResource MaterialDesignBodyLight}"/>
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

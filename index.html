@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 Windows 应用程式</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎使用我的应用程式</h1>
+        
+        <div class="input-section">
+            <label for="nameInput">请输入您的姓名:</label>
+            <input type="text" id="nameInput" placeholder="输入姓名...">
+        </div>
+        
+        <div class="button-section">
+            <button id="greetBtn" class="btn btn-primary">问候</button>
+            <button id="clearBtn" class="btn btn-secondary">清除</button>
+            <button id="aboutBtn" class="btn btn-info">关于</button>
+            <button id="exitBtn" class="btn btn-danger">退出</button>
+        </div>
+        
+        <div class="output-section">
+            <textarea id="outputArea" readonly placeholder="输出信息将显示在这里..."></textarea>
+        </div>
+    </div>
+    
+    <script src="renderer.js"></script>
+</body>
+</html>
